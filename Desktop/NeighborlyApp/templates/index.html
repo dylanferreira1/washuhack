@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Neighborly</title>
+</head>
+<body>
+    <h1>Welcome to Neighborly!</h1>
+    <form id="messageForm">
+        Username: <input type="text" id="username" name="username"><br>
+        Message: <input type="text" id="message" name="message"><br>
+        <input type="submit" value="Post Message">
+    </form>
+    <h2>Neighborhood Messages</h2>
+    <ul id="messagesList">
+        {% for msg in messages %}
+            <li><b>{{ msg.username }}</b>: {{ msg.message }}</li>
+        {% endfor %}
+    </ul>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const form = document.getElementById("messageForm");
+            form.addEventListener("submit", function(event) {
+                event.preventDefault();
+                const username = document.getElementById("username").value;
+                const message = document.getElementById("message").value;
+                fetch("/post_message", {
+                    method: "POST",
+                    body: new URLSearchParams({
+                        "username": username,
+                        "message": message
+                    }),
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded"
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        const messagesList = document.getElementById("messagesList");
+                        const newMessage = document.createElement("li");
+                        newMessage.innerHTML = `<b>${username}</b>: ${message}`;
+                        messagesList.appendChild(newMessage);
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
